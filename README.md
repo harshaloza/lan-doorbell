@@ -1,70 +1,145 @@
-LAN DOORBELL PRO — COMPLETE SOURCE PACKAGE
-==========================================
+# LAN Doorbell Pro
 
-FEATURES
-- Professional app icon and logo (generated from vector-like shapes in code; no external image required).
-- System tray app plus an always-on-top floating Ring button (drag it to reposition; close hides it; re-enable from tray menu).
-- Multiple receiver PCs: put one computer name or IPv4 address per line.
-- Custom two-note "ding-dong" sound embedded in the EXE.
-- Optional start with Windows.
-- Optional temporary Windows mute override.
-- Private-LAN firewall setup and removal scripts.
+Ring other Windows PCs on your local network with one click. A small tray app with an
+always-on-top bell button. The PC being rung plays a ding-dong, shows who is ringing, and can
+answer **"On my way 👍"**.
 
-IMPORTANT
-This is a source project, not a compiled installer. Build on Windows with .NET 8 SDK.
-Computer names work only if your LAN can resolve them. For stable name lookup, use local DNS/router DHCP reservations. IP address fallback is supported.
+## Features
 
-BUILD
-1. Install .NET 8 SDK.
-2. Open PowerShell in this folder.
-3. Run:
-   dotnet restore
-   dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
-4. EXE:
-   bin\Release\net8.0-windows\win-x64\publish\LanDoorbell.exe
+- **Floating bell button.** It stays on top, never takes focus from your work, stays out of
+  Alt+Tab, scales with display scaling and remembers where you put it.
+- **Ring everyone or one PC.** Ring all PCs, or pick one from the tray or button menu. You can
+  give PCs friendly names (`Toolroom = 192.168.1.40`).
+- **Shows who is ringing.** "🔔 Reception is ringing", with a large flashing alert window and
+  a taskbar flash.
+- **Replies.** The receiver can answer *On my way* or *Busy, 5 minutes*, and the answer
+  appears on the sender's PC.
+- **Do not disturb.** Turn it on from the tray, or set a daily schedule (for example
+  22:00–07:00). The sender is told the ring was refused.
+- **Choose the sound.** Use the built-in ding-dong or your own `.wav`/`.mp3`, at the volume you
+  want. Optionally the app unmutes Windows or raises the volume while ringing.
+- **Ring history.** A log of every ring sent and received, with replies.
+- **Test connection.** Checks each PC is reachable and uses the same secret, without ringing it.
+- **Secure on the LAN.** The shared secret never crosses the network (it uses challenge–response
+  with HMAC-SHA256). The secret is stored encrypted with Windows DPAPI. Spam and brute-force
+  attempts are limited.
+- **Works on IPv4 and IPv6, runs one copy only, and starts with Windows if you want.**
 
-The app icon is embedded into the executable. The .ico file is also copied beside the app for the tray icon. Keep the icon beside the EXE when running the published app.
+## Install
 
-CONFIGURE RECEIVER PC(S)
-1. Run the EXE.
-2. Right-click tray icon > Settings and receivers.
-3. Set a shared secret; use exactly the same secret on sender and every receiver.
-4. Check "Enable receiver on this PC".
-5. Optional: check "Start automatically with Windows".
-6. Save.
-7. Run Install-Firewall-Receiver.ps1 as Administrator on every receiver:
-   Set-ExecutionPolicy -Scope Process Bypass
-   .\Install-Firewall-Receiver.ps1
-This allows inbound TCP 45872 on Private profile from LocalSubnet only. Use only on a trusted LAN. Never create router port forwarding.
+### Option A: download the release (easiest)
 
-CONFIGURE SENDER
-1. Run EXE, open Settings and receivers.
-2. In "Receiver computer names / IPs", enter each receiver on a separate line, e.g.:
-   DESIGN-PC
-   TOOLROOM-PC
-   192.168.1.40
-3. Set same port and shared secret as receiver(s).
-4. Leave "Enable receiver on this PC" unchecked unless this PC should also receive rings.
-5. Save. Use the floating **RING** button, or tray menu > **Ring all selected PCs**. The floating button can be dragged around the screen. Its × hides it; show it again from the tray menu.
+Download `LanDoorbell-<version>-win-x64.zip` from the
+[Releases page](https://github.com/harshaloza/lan-doorbell/releases), extract it, open PowerShell
+in that folder and run the installer as shown below. Nothing else is needed: the EXE includes
+the .NET runtime. Windows SmartScreen may warn you because the EXE is not code-signed; choose
+*More info → Run anyway*.
 
-TEST
-On sender PowerShell:
-   Test-NetConnection DESIGN-PC -Port 45872
-Replace DESIGN-PC with actual receiver name. Look for TcpTestSucceeded: True.
-If name lookup fails, use local DNS or a router DHCP reservation. Name-based connection does not itself prevent IP changes; the LAN's name-resolution service must update/resolve the name correctly.
+### Option B: installer script from source
 
-SOUND
-Tray menu > Test ding-dong sound. The sound is embedded in the app. If temporary unmute is enabled, Windows may briefly unmute and other apps may become audible. It cannot guarantee sound if volume is zero or output hardware is off.
+Open PowerShell in this folder:
 
-SECURITY
-Shared secret is stored in %AppData%\LanDoorbell\settings.json as plain text. Use a unique secret and only use this on a trusted LAN.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Install.ps1            # a PC that only sends rings
+powershell -ExecutionPolicy Bypass -File .\Install.ps1 -Receiver  # a PC that receives rings
+```
 
-### Compact floating Ring button
+The script uses `LanDoorbell.exe` beside it, or builds it (this needs the .NET 10 SDK or newer) and installs it to
+`%LOCALAPPDATA%\Programs\LanDoorbell`. It also adds a Start menu shortcut and starts the app.
+With `-Receiver`, it also creates the firewall rule; Windows asks for Administrator permission.
+Use `-ExePath` to install an EXE you already built, and `-Port` if you changed the port.
 
-The floating button is 44 × 44 pixels and sits just above the Windows taskbar. Left-click the bell to ring all configured receivers. To reposition it, right-click and drag. Use the tray menu's **Show floating Ring button** option to show it again if hidden.
+To remove the app, run `Uninstall.ps1` from the install folder. Add `-RemoveSettings` to also
+delete your settings and history.
 
+### Option C: build it yourself
 
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+```
 
-### Floating Ring button and taskbar visibility
+The result is a single compressed file, `publish\LanDoorbell.exe` (about 70 MB, because it includes
+the .NET runtime). The icon, logo and sound are inside it, so nothing else needs to sit beside it.
 
-The app uses a 44 × 44 pixel always-on-top floating bell button. Left-click rings all configured receivers; right-click and drag to move it. Its position is clamped to the Windows desktop working area so it cannot be dragged onto or underneath the taskbar. No separate taskbar launcher executable is needed.
+## Set up
+
+Every PC needs the **same port** and the **same shared secret**.
+
+1. On the first PC, open **Settings**: double-click the tray bell, or right-click it and choose
+   Settings. Go to **Connection** and click **Generate** to create a secret, then **Copy** to
+   copy it. Enter that secret on every other PC.
+2. **On each PC that should be rung:** go to **Receive rings** and tick **Enable receiver on this
+   PC**. Then create the firewall rule, once, as Administrator:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\Install-Firewall-Receiver.ps1 -Port 45872
+   ```
+
+   The rule only allows your **local subnet** on **Private** networks. Set your trusted
+   network to *Private* in Windows Settings. **Never forward this port on your router.**
+3. **On each PC that rings others:** go to **Ring other PCs** and enter one PC per line:
+
+   ```text
+   Toolroom = 192.168.1.40
+   Design = DESIGN-PC
+   RECEPTION-PC
+   ```
+
+   Then click **Test connection**. Each PC should show ✔.
+
+Computer names only work if your network can resolve them. If a name fails, use the IP address,
+and give that PC a fixed address (a DHCP reservation) in your router.
+
+## Use
+
+| Action | How |
+| --- | --- |
+| Ring everyone | Left-click the floating bell, or tray menu → **Ring all PCs** |
+| Ring one PC | Right-click the bell or the tray icon → **Ring one PC** |
+| Move the bell | Right-click and drag it |
+| Hide or show the bell | Bell menu → **Hide this button**; tray menu → **Show floating Ring button** |
+| Do not disturb | Tray menu → **Do not disturb**, or schedule it in Settings → Receive rings |
+| See past rings | Tray menu → **Ring history…** |
+
+## Upgrading from version 1
+
+Version 2 uses a **new, secure network protocol**. Update **every PC** at the same time: a
+version 1 PC and a version 2 PC cannot ring each other. Your old settings are converted
+automatically. The plain-text secret is moved to encrypted storage, and your receivers are
+kept. If your old secret was the example value, or shorter than 8 characters, Settings asks
+you for a new one.
+
+## Files
+
+| Path | Contents |
+| --- | --- |
+| `%APPDATA%\LanDoorbell\settings.json` | Settings (the secret is DPAPI-encrypted for your Windows account) |
+| `%APPDATA%\LanDoorbell\history.jsonl` | Ring history (the last 1000 entries) |
+| `%APPDATA%\LanDoorbell\landoorbell.log` | Diagnostic log (rolls over at 1 MB) |
+
+## Troubleshooting
+
+- **"No answer"**: the PC is off, the address is wrong, or the firewall rule is missing. You can
+  also check from PowerShell: `Test-NetConnection RECEIVER-PC -Port 45872`.
+- **"Connection refused"**: LAN Doorbell is not running on that PC, or its receiver is off.
+- **"Shared secret does not match"**: enter exactly the same secret on both PCs (use **Copy**).
+- **"Connected, but no greeting"**: that PC still runs version 1. Update it.
+- **No sound**: check the volume, or turn on *Raise Windows volume* in Settings → Receive rings.
+  The app cannot play sound if the speakers are off.
+- See the log file (Settings → General → **Open data folder**) for details.
+
+## Project layout
+
+```text
+src/Program.cs            Startup, single instance, crash logging
+src/DoorbellContext.cs    Tray icon, menus, wiring between the parts
+src/RingServer.cs         Receiver (listens for rings)
+src/RingClient.cs         Sender (rings and connection tests)
+src/Protocol.cs           Wire protocol and HMAC helpers
+src/AppSettings.cs        Settings model
+src/SettingsStore.cs      Load/save/migrate settings, start-with-Windows
+src/SoundService.cs       Doorbell sound and volume handling
+src/RingHistory.cs        Ring history file
+src/*Form.cs              Windows: floating button, settings, alert, history
+Install.ps1 / Uninstall.ps1 / Install-Firewall-Receiver.ps1 / Remove-Firewall-Rule.ps1
+```

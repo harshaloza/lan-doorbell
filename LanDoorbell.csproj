@@ -1,23 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>LanDoorbell</AssemblyName>
     <RootNamespace>LanDoorbell</RootNamespace>
     <ApplicationIcon>Assets\LanDoorbell.ico</ApplicationIcon>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+
+    <Version>2.0.0</Version>
+    <Product>LAN Doorbell Pro</Product>
+    <Title>LAN Doorbell Pro</Title>
+    <Description>Ring other PCs on your local network.</Description>
+    <Copyright>© 2026</Copyright>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="TaskbarRingLauncher\**\*.cs" />
-    <Content Remove="TaskbarRingLauncher\**\*" />
-    <EmbeddedResource Remove="TaskbarRingLauncher\**\*" />
-  </ItemGroup>
+
+  <!-- Single-file publish: one compressed EXE (about 60% smaller). WinForms cannot be trimmed. -->
+  <PropertyGroup Condition="'$(PublishSingleFile)' == 'true'">
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <!-- Everything the app needs is embedded in the EXE; nothing has to sit beside it. -->
+  <ItemGroup>
     <EmbeddedResource Include="Assets\ding-dong.wav" LogicalName="LanDoorbell.ding-dong.wav" />
-    <Content Include="Assets\LanDoorbell.ico" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="Assets\LanDoorbell-Logo.png" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Assets\LanDoorbell.ico" LogicalName="LanDoorbell.icon.ico" />
+    <EmbeddedResource Include="Assets\LanDoorbell-Logo.png" LogicalName="LanDoorbell.logo.png" />
   </ItemGroup>
 </Project>
