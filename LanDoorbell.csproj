@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>LanDoorbell</AssemblyName>
+    <RootNamespace>LanDoorbell</RootNamespace>
+    <ApplicationIcon>Assets\LanDoorbell.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="TaskbarRingLauncher\**\*.cs" />
+    <Content Remove="TaskbarRingLauncher\**\*" />
+    <EmbeddedResource Remove="TaskbarRingLauncher\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <EmbeddedResource Include="Assets\ding-dong.wav" LogicalName="LanDoorbell.ding-dong.wav" />
+    <Content Include="Assets\LanDoorbell.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\LanDoorbell-Logo.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
