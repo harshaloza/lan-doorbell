@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Assets/LanDoorbell-Logo.png" width="160" alt="LAN Doorbell Pro logo">
+</p>
+
 # LAN Doorbell Pro
 
 Ring other Windows PCs on your local network with one click. A small tray app with an
@@ -141,5 +145,7 @@ src/SettingsStore.cs      Load/save/migrate settings, start-with-Windows
 src/SoundService.cs       Doorbell sound and volume handling
 src/RingHistory.cs        Ring history file
 src/*Form.cs              Windows: floating button, settings, alert, history
+src/BellArt.cs            Vector bell for the floating button (matches the icon)
+Assets/design/            Icon/logo sources (SVG) and render_icons.py, which builds the .ico and .png
 Install.ps1 / Uninstall.ps1 / Install-Firewall-Receiver.ps1 / Remove-Firewall-Rule.ps1
 ```

@@ -12,9 +12,6 @@ internal sealed class FloatingButtonForm : Form
 {
     private const int LogicalSize = 44;
     private static readonly Color Navy = Color.FromArgb(21, 36, 63);
-    private static readonly Color NavyHover = Color.FromArgb(33, 54, 92);
-    private static readonly Color NavyPressed = Color.FromArgb(12, 22, 40);
-    private static readonly Color BellBlue = Color.FromArgb(69, 185, 229);
     private static readonly Color Gold = Color.FromArgb(250, 204, 76);
 
     private readonly Func<Task> ringAction;
@@ -186,46 +183,24 @@ internal sealed class FloatingButtonForm : Form
         }
     }
 
-    // ---- Drawing: a vector bell in the logo's colours, sharp at any scale ----
+    // ---- Drawing: the bell from the app icon (see BellArt), sharp at any scale ----
     protected override void OnPaint(PaintEventArgs e)
     {
-        var g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        float s = Width;
-
-        using (var bg = new SolidBrush(leftDown ? NavyPressed : hover ? NavyHover : Navy))
-            g.FillEllipse(bg, 0, 0, s - 1, s - 1);
-        using (var rim = new Pen(Color.FromArgb(90, BellBlue), Math.Max(1f, s / 30f)))
-            g.DrawEllipse(rim, s * 0.03f, s * 0.03f, s * 0.94f, s * 0.94f);
-
-        if (busy)
+        var state = leftDown ? BellArt.State.Pressed : hover ? BellArt.State.Hover : BellArt.State.Normal;
+        if (!busy)
         {
-            using var dots = new SolidBrush(Gold);
-            float r = s * 0.06f;
-            for (int i = -1; i <= 1; i++)
-                g.FillEllipse(dots, s * 0.5f + i * s * 0.17f - r, s * 0.5f - r, r * 2, r * 2);
+            BellArt.DrawButton(e.Graphics, Width, state);
             return;
         }
 
-        PointF P(float x, float y) => new(x * s, y * s);
-        using (var bell = new GraphicsPath())
-        {
-            bell.AddArc(0.31f * s, 0.22f * s, 0.38f * s, 0.38f * s, 180, 180);   // dome
-            bell.AddLine(P(0.69f, 0.41f), P(0.72f, 0.62f));                       // right side
-            bell.AddLine(P(0.72f, 0.62f), P(0.28f, 0.62f));
-            bell.AddLine(P(0.28f, 0.62f), P(0.31f, 0.41f));                       // left side
-            bell.CloseFigure();
-            using var blue = new SolidBrush(BellBlue);
-            g.FillPath(blue, bell);
-            g.FillEllipse(blue, 0.20f * s, 0.58f * s, 0.60f * s, 0.10f * s);      // flared rim
-        }
-        using (var gold = new SolidBrush(Gold))
-            g.FillEllipse(gold, 0.44f * s, 0.66f * s, 0.12f * s, 0.12f * s);      // clapper
-        using (var waves = new Pen(Gold, Math.Max(1.2f, s * 0.045f)) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-        {
-            g.DrawArc(waves, 0.13f * s, 0.20f * s, 0.20f * s, 0.20f * s, 200, 70);
-            g.DrawArc(waves, 0.67f * s, 0.20f * s, 0.20f * s, 0.20f * s, 270, 70);
-        }
+        // While ringing: the disc with three gold dots.
+        BellArt.DrawButton(e.Graphics, Width, BellArt.State.Pressed);
+        using var veil = new SolidBrush(Color.FromArgb(200, 10, 22, 49));
+        e.Graphics.FillEllipse(veil, Width * 0.08f, Width * 0.08f, Width * 0.84f, Width * 0.84f);
+        using var dots = new SolidBrush(Gold);
+        float r = Width * 0.06f;
+        for (int i = -1; i <= 1; i++)
+            e.Graphics.FillEllipse(dots, Width * 0.5f + i * Width * 0.17f - r, Width * 0.5f - r, r * 2, r * 2);
     }
 
     protected override void Dispose(bool disposing)
