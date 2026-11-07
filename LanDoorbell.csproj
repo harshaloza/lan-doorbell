@@ -14,7 +14,7 @@
     <Product>LAN Doorbell Pro</Product>
     <Title>LAN Doorbell Pro</Title>
     <Description>Ring other PCs on your local network.</Description>
-    <Copyright>© 2026</Copyright>
+    <Copyright>Copyright (c) 2026 harshaloza. MIT License.</Copyright>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 

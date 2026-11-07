@@ -149,3 +149,8 @@ src/BellArt.cs            Vector bell for the floating button (matches the icon)
 Assets/design/            Icon/logo sources (SVG) and render_icons.py, which builds the .ico and .png
 Install.ps1 / Uninstall.ps1 / Install-Firewall-Receiver.ps1 / Remove-Firewall-Rule.ps1
 ```
+
+## License
+
+[MIT](LICENSE) © 2026 harshaloza. You can use, change and share this app freely, as long as the
+copyright and license notice stay with it.
